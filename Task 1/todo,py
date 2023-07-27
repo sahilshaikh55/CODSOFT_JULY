@@ -1,0 +1,96 @@
+import tkinter as tk
+from tkinter import messagebox
+
+tasks = []
+
+
+def add_task():
+    task = entry.get()
+    if task:
+        tasks.append({"task": task, "completed": False})
+        update_listbox()
+        entry.delete(0, tk.END)
+    else:
+        messagebox.showwarning("Warning", "Please enter a task.")
+
+
+def delete_task():
+    selected_indices = listbox.curselection()
+    if selected_indices:
+        confirmed = messagebox.askyesno(
+            "Confirmation", "Are you sure you want to delete the selected task(s)?")
+        if confirmed:
+            for index in reversed(selected_indices):
+                tasks.pop(index)
+            update_listbox()
+    else:
+        messagebox.showwarning("Warning", "Please select a task to delete.")
+
+
+def toggle_task_completion():
+    selected_indices = listbox.curselection()
+    if selected_indices:
+        for index in selected_indices:
+            tasks[index]["completed"] = not tasks[index]["completed"]
+        update_listbox()
+    else:
+        messagebox.showwarning(
+            "Warning", "Please select a task to toggle completion.")
+
+
+def update_listbox():
+    listbox.delete(0, tk.END)
+    for task in tasks:
+        task_text = task["task"]
+        if task["completed"]:
+            task_text = f"[x] {task_text}"
+        else:
+            task_text = f"[ ] {task_text}"
+        listbox.insert(tk.END, task_text)
+
+
+def main():
+    global entry, listbox  # Define entry and listbox as global variables
+
+    root = tk.Tk()
+    root.title("To-Do List")
+
+    # Set background and foreground colors
+    root.configure(bg="white")
+    root.option_add("*background", "white")
+    root.option_add("*foreground", "black")
+
+    frame = tk.Frame(root, bg="white")
+    frame.pack(pady=10)
+
+    scrollbar = tk.Scrollbar(frame)
+    scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+
+    listbox = tk.Listbox(frame, width=50, height=10, yscrollcommand=scrollbar.set,
+                         selectmode=tk.MULTIPLE, bg="white", fg="black")
+    listbox.pack(side=tk.LEFT)
+
+    scrollbar.config(command=listbox.yview)
+
+    entry = tk.Entry(root, font=("Arial", 12), bg="white", fg="black")
+    entry.pack(pady=10)
+
+    add_button = tk.Button(root, text="Add Task",
+                           command=add_task, bg="white", fg="black")
+    add_button.pack(pady=5)
+
+    delete_button = tk.Button(root, text="Delete Task",
+                              command=delete_task, bg="white", fg="black")
+    delete_button.pack(pady=5)
+
+    done_button = tk.Button(
+        root, text="Done", command=toggle_task_completion, bg="white", fg="black")
+    done_button.pack(pady=5)
+
+    update_listbox()
+
+    root.mainloop()
+
+
+if __name__ == "__main__":
+    main()
